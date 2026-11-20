@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A clear, up-to-date view of Mona's team projects.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+      const requiredFields = ["name", "owner", "status", "recentActivity", "priority"];
+
+      function showMessage(message, state) {
+        const container = document.querySelector("#project-content");
+        container.replaceChildren();
+        container.setAttribute("aria-busy", "false");
+        const notice = document.createElement("p");
+        notice.className = `data-message${state ? ` data-message--${state}` : ""}`;
+        notice.setAttribute("role", state === "error" ? "alert" : "status");
+        notice.textContent = message;
+        container.append(notice);
+      }
+
+      function normalizeClass(value) {
+        return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "unknown";
+      }
+
+      function createField(label, value, className) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "project-card__detail";
+        const term = document.createElement("dt");
+        term.textContent = label;
+        const description = document.createElement("dd");
+        description.textContent = value;
+        if (className) description.className = className;
+        wrapper.append(term, description);
+        return wrapper;
+      }
+
+      function createProjectCard(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const heading = document.createElement("h3");
+        heading.className = "project-card__name";
+        heading.textContent = project.name;
+
+        const details = document.createElement("dl");
+        details.className = "project-card__details";
+        details.append(
+          createField("Owner", project.owner),
+          createField("Status", project.status, `status-badge status-badge--${normalizeClass(project.status)}`),
+          createField("Recent activity", project.recentActivity, "project-card__activity"),
+          createField("Priority", project.priority, `priority-badge priority-badge--${normalizeClass(project.priority)}`)
+        );
+
+        card.append(heading, details);
+        if (typeof project.summary === "string" && project.summary.trim()) {
+          const summary = document.createElement("p");
+          summary.className = "project-card__summary";
+          summary.textContent = project.summary;
+          card.append(summary);
+        }
+        return card;
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) throw new Error(`The project data request failed (${response.status}).`);
+
+          let data;
+          try {
+            data = await response.json();
+          } catch {
+            showMessage("Project data is not valid JSON. Please check project-data.json.", "error");
+            return;
+          }
+
+          if (!data || !Array.isArray(data.projects) ||
+              data.projects.some(project => !project || requiredFields.some(field =>
+                typeof project[field] !== "string" || !project[field].trim()))) {
+            showMessage("Project data is invalid. Each project must include a name, owner, status, recent activity, and priority.", "error");
+            return;
+          }
+
+          if (data.projects.length === 0) {
+            showMessage("There are no projects to display yet.");
+            return;
+          }
+
+          const list = document.createElement("ul");
+          list.className = "project-list";
+          for (const project of data.projects) {
+            const item = document.createElement("li");
+            item.append(createProjectCard(project));
+            list.append(item);
+          }
+          const container = document.querySelector("#project-content");
+          container.replaceChildren(list);
+          container.setAttribute("aria-busy", "false");
+        } catch {
+          showMessage("Project data could not be loaded. Check your connection and try again.", "error");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadProjects);
+    </script>
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard__header">
+        <p class="dashboard__eyebrow">Team overview</p>
+        <h1>Project Pulse</h1>
+        <p class="dashboard__intro">A quick look at what the team is building and what needs attention.</p>
+      </header>
+      <section class="dashboard__projects" aria-labelledby="projects-heading">
+        <div class="dashboard__section-heading">
+          <h2 id="projects-heading">Projects</h2>
+        </div>
+        <div id="project-content" aria-live="polite" aria-busy="true">
+          <p class="data-message" role="status">Loading projects…</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

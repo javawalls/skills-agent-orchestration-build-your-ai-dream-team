@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "name": "Atlas",
+      "owner": "Mona Patel",
+      "status": "On track",
+      "recentActivity": "Contributor onboarding guide reviewed; feedback is being incorporated.",
+      "priority": "High",
+      "summary": "Make it easier for new contributors to get started and make their first change."
+    },
+    {
+      "name": "Beacon",
+      "owner": "Jordan Lee",
+      "status": "In progress",
+      "recentActivity": "The latest accessibility audit is complete, with two follow-up items underway.",
+      "priority": "Medium",
+      "summary": "Improve accessibility and consistency across the team's shared interfaces."
+    },
+    {
+      "name": "Compass",
+      "owner": "Avery Chen",
+      "status": "Needs attention",
+      "recentActivity": "The integration milestone moved; the team is reviewing dependencies this week.",
+      "priority": "High",
+      "summary": "Bring project updates into one reliable view for team planning."
+    },
+    {
+      "name": "Drift",
+      "owner": "Riley Morgan",
+      "status": "Complete",
+      "recentActivity": "The release notes and handoff checklist were published yesterday.",
+      "priority": "Low",
+      "summary": "Wrap up completed work with a clear handoff for future contributors."
+    }
+  ]
+}
